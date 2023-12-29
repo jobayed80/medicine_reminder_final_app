@@ -1,6 +1,10 @@
 import React from "react";
+import { useState } from "react";
 // server
 import axios from 'axios'
+import moment from 'moment'
+
+import FixedPlugin from "components/fixedPlugin/FixedPlugin";
 
 // sweetalert notification
 import Swal from 'sweetalert2'
@@ -8,7 +12,8 @@ import { useEffect } from "react";
 
 import Dropdown from "components/dropdown";
 import { FiAlignJustify } from "react-icons/fi";
-import { Link } from "react-router-dom";
+import src from "tailwindcss-rtl";
+import { Link, useNavigate } from "react-router-dom";
 import navbarimage from "assets/img/layout/Navbar.png";
 import { BsArrowBarUp } from "react-icons/bs";
 import { FiSearch } from "react-icons/fi";
@@ -18,12 +23,30 @@ import {
   IoMdInformationCircleOutline,
 } from "react-icons/io";
 import avatar from "assets/img/avatars/avatar4.png";
+// logout firebase
+import { getAuth, signOut } from "firebase/auth";
+import { onAuthStateChanged 
+} from 'firebase/auth'
 
+// this part used for recent added card
+import {
+  DownloadOutlined,
+  RotateLeftOutlined,
+  RotateRightOutlined,
+  SwapOutlined,
+  ZoomInOutlined,
+  ZoomOutOutlined,
+} from '@ant-design/icons';
+import { Image, Space } from 'antd';
 
 // used for profile form
 import { PlusOutlined } from '@ant-design/icons';
-import { Button, Col, DatePicker, Drawer, Form, Input, Row, Select, Space } from 'antd';
+import { Button, Col, DatePicker, Drawer, Form, Input, Row, Select, Modal } from 'antd';
 const { Option } = Select;
+
+
+
+
 
 
 
@@ -34,6 +57,33 @@ const { Option } = Select;
 const Navbar = (props) => {
   const { onOpenSidenav, brandText } = props;
   const [darkmode, setDarkmode] = React.useState(false);
+
+  const navigator = useNavigate()
+  let auth = getAuth();
+  let [photo, setPhoto] = useState('')
+  let [name, setName] = useState('')
+     // login verified check for google
+     useEffect(()=>{
+      onAuthStateChanged(auth, (user) => {
+         
+                setPhoto(user.photoURL)
+                setName(user.displayName)
+             
+      })
+  },[])
+
+
+  // get MaxId user_profile
+  const [maxId, setMaxId] = useState(null);
+  useEffect(() => {
+    axios.get('http://localhost:8082/getProfileId')
+      .then(response => {
+        setMaxId(response.data.max_id);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
+  }, []);
 
 
   // used for profile form
@@ -46,27 +96,75 @@ const Navbar = (props) => {
   const onClose = () => {
     setOpen(false);
   };
-  const [values, setValues] = React.useState({
-    // Id: "",
-    First_Name: "",
-    Last_Name: "",
-    Address: "",
-    Contact: "",
-    Description: "",
-    Date: "",
-    Country: "",
-    Gender: ""
-  })
+  // const [values, setValues] = React.useState({
+  //   // Id: "",
+  //   First_Name: "",
+  //   Last_Name: "",
+  //   Address: "",
+  //   Contact: "",
+  //   Description: "",
+  //   Date: "",
+  //   Country: "",
+  //   Gender: "",
+  // })
+  // create user profile
+  // const handleSubmitProfile = async (e) => {
+  //   e.preventDefault()
+  //   axios.post('http://localhost:8082/create_profile', values)
+  //     .then(res => {
+  //       console.log(res)
+  //       console.log("inserted")
+  //     })
+  //     .catch(err => console.log(err))
+  //     const Toast = Swal.mixin({
+  //     toast: true,
+  //     position: "top-end",
+  //     showConfirmButton: false,
+  //     timer: 3000,
+  //     timerProgressBar: true,
+  //     didOpen: (toast) => {
+  //       toast.onmouseenter = Swal.stopTimer;
+  //       toast.onmouseleave = Swal.resumeTimer;
+  //     }
+  //   });
+  //   Toast.fire({
+  //     icon: "success",
+  //     title: "Inserted your data"
+  //   });  
+  //   onClose()
+  //   window.location.reload();
+
+
+  // }
+
+
+
+
+
+
+
+
+
+
+
+
+  const [First_Name, setFname] = useState('');
+  const [Last_Name, setLname] = useState('');
+  const [Address, setAddress] = useState('');
+  const [Contact, setContact] = useState('');
+  const [Description, setDescription] = useState('');
+  const [Date, setDate] = useState('');
+  const [Country, setCountry] = useState('');
+  const [Gender, setGender] = useState('');
+  const [image, setImage] = useState(null);
+
+
+  const handleFile = (e) => {
+    setImage(e.target.files[0])
+  }
 
   const handleSubmitProfile = (e) => {
-    e.preventDefault()
-    axios.post('http://localhost:8082/create_profile', values)
-      .then(res => {
-        console.log(res)
-        console.log("inserted")
-      })
-      .catch(err => console.log(err))
-      const Toast = Swal.mixin({
+    const Toast = Swal.mixin({
       toast: true,
       position: "top-end",
       showConfirmButton: false,
@@ -81,11 +179,140 @@ const Navbar = (props) => {
       icon: "success",
       title: "Inserted your data"
     });
-    onClose()
-    // window.location.reload();
 
+
+    const formData = new FormData();
+    formData.append('First_Name', First_Name);
+    formData.append('Last_Name', Last_Name);
+    formData.append('Address', Address);
+    formData.append('Contact', Contact);
+    formData.append('Description', Description);
+    formData.append('Date', Date);
+    formData.append('Country', Country);
+    formData.append('Gender', Gender);
+    formData.append('image', image);
+
+    try {
+      axios.post('http://localhost:8082/upload', formData);
+      console.log('Data uploaded successfully');
+    } catch (error) {
+      console.error('Error uploading data: ', error);
+    }
+
+    // window.location.reload();
   }
 
+  // const handleUpload = async (e) =>{
+  //   try {
+  //     const formData = new FormData();
+  //     formData.append('image', image);
+
+  //     await axios.post('http://localhost:8082/upload', formData, {
+  //       headers: {
+  //         'Content-Type': 'multipart/form-data',
+  //       },
+  //     });
+
+  //     alert('Image uploaded successfully!');
+  //   } catch (error) {
+  //     console.error('Error uploading image:', error);
+  //     alert('Error uploading image. Please try again.'+ error);
+  //   }
+  // }
+
+
+
+
+
+  // used for profile display by search id
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const showModal = () => {
+    setIsModalOpen(true);
+    setOpen(false);
+  };
+
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
+  //  const [userData, setUserData] = useState({});
+  //   const [userId, setUserId] = useState('');
+
+  //   const fetchData = async () => {
+  //     try {
+  //       const response = await axios.get(`http://localhost:8082/getDataById/${userId}`);
+  //       setUserData(response.data);
+  //     } catch (error) {
+  //       console.error('Error fetching data:', error);
+  //     }
+  //   };
+
+
+
+  const [userId, setUserId] = useState('');
+  const [userData, setUserData] = useState(null);
+
+  const handleSearch = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8082/getDataById/${maxId}`);
+      setUserData(response.data);
+    } catch (error) {
+      console.error('Error fetching data: ', error);
+      setUserData(null);
+    }
+  };
+
+
+
+
+  // used for download image profile
+  const onDownload = () => {
+    fetch(src)
+      .then((response) => response.blob())
+      .then((blob) => {
+        const url = URL.createObjectURL(new Blob([blob]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'image.png';
+        document.body.appendChild(link);
+        link.click();
+        URL.revokeObjectURL(url);
+        link.remove();
+      });
+  };
+
+
+
+  // logout
+  let handleLogout = () => {
+
+    const auth = getAuth();
+    signOut(auth).then(() => {
+      const Toast = Swal.mixin({
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.onmouseenter = Swal.stopTimer;
+          toast.onmouseleave = Swal.resumeTimer;
+        }
+      });
+      Toast.fire({
+        icon: "success",
+        title: "Logout Successfully"
+      });
+      navigator('/admin/authentication/signinAuth')
+    }).catch((error) => {
+      // An error happened.
+    });
+  }
 
 
 
@@ -95,6 +322,7 @@ const Navbar = (props) => {
     <>
       <nav className="sticky top-4 z-40 flex flex-row flex-wrap items-center justify-between rounded-xl bg-white/10 p-2 backdrop-blur-xl dark:bg-[#0b14374d]">
         <div className="ml-[6px]">
+
           <div className="h-6 w-[224px] pt-1">
             <a
               className="text-sm font-normal text-navy-700 hover:underline dark:text-white dark:hover:text-white"
@@ -191,7 +419,7 @@ const Navbar = (props) => {
             classNames={"py-2 top-4 -left-[230px] md:-left-[440px] w-max"}
           />
           {/* start Horizon PRO */}
-          <Dropdown
+          {/* <Dropdown
             button={
               <p className="cursor-pointer">
                 <IoMdInformationCircleOutline className="h-4 w-4 text-gray-600 dark:text-white" />
@@ -232,7 +460,7 @@ const Navbar = (props) => {
             }
             classNames={"py-2 top-6 -left-[250px] md:-left-[330px] w-max"}
             animation="origin-[75%_0%] md:origin-top-right transition-all duration-300 ease-in-out"
-          />
+          /> */}
           <div
             className="cursor-pointer text-gray-600"
             onClick={() => {
@@ -256,7 +484,7 @@ const Navbar = (props) => {
             button={
               <img
                 className="h-10 w-10 cursor-pointer border-2 border-gray-300 rounded-full"
-                src="https://scontent.fdac136-1.fna.fbcdn.net/v/t39.30808-6/334811276_1356067541844945_386734669044466370_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=9c7eae&_nc_eui2=AeE3h9Hp7XnAlO4jupmw3NefZRkXgumTnmNlGReC6ZOeY9-m3A-Dd48HtkMMRarSBXkmT1KHrtb3stAfp9gsbA5S&_nc_ohc=6BSfsi1S5X8AX-60Ka4&_nc_ht=scontent.fdac136-1.fna&oh=00_AfAK2qRLsunnil8qIiOOQSINN_t3HK4CTLNOJcDfa5_q_Q&oe=6585A68C"
+                src={photo}
                 alt="Elon Musk"
               />
             }
@@ -265,7 +493,7 @@ const Navbar = (props) => {
                 <div className="p-4">
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-bold text-navy-700 dark:text-white">
-                      👋 Hey, Adela
+                      👋 Hey, {name}
                     </p>{" "}
                   </div>
                 </div>
@@ -284,12 +512,13 @@ const Navbar = (props) => {
                   >
                     Newsletter Settings
                   </a>
-                  <a
-                    href=" "
-                    className="mt-3 text-sm font-medium text-red-500 hover:text-red-500"
+                  <span
+
+                    onClick={handleLogout}
+                    className="mt-3 text-sm font-medium text-red-500 hover:text-red-500 cursor-pointer"
                   >
                     Log Out
-                  </a>
+                  </span>
                 </div>
               </div>
             }
@@ -317,31 +546,37 @@ const Navbar = (props) => {
 
         extra={
           <Space>
-            <Button className="border-2 border-green-400" onClick={onClose}>Cancel</Button>
+            {/* <Button className="border-2 border-green-400" onClick={onClose}>Cancel</Button> */}
+
+            <button type="reset" class=" ml-4 text-white bg-red-400 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Reset</button>
+
+            <button onClick={showModal} class=" ml-4 text-white bg-blueSecondary hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Display</button>
+
+            <button type="primary" class=" ml-4 text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-600 dark:focus:ring-red-800">Delete</button>
 
           </Space>
         }
       >
         <form action="" onSubmit={handleSubmitProfile}>
-          <label for="first_name" class="block mb-2 text-lg text-gray-900 dark:text-black font-medium">Your Id : </label>
+          <label for="first_name" class="block mb-2 text-lg text-gray-900 dark:text-black font-medium">Your Id : {maxId + 1}</label>
           <div class="grid gap-6 mb-6 mt-6 md:grid-cols-2">
             <div>
               <label for="first_name" class="block mb-2 text-md text-gray-900 dark:text-black font-medium">Enter your first Name</label>
-              <input type="text" id="first_name" class="bg-white border h-12 border-gray-300 text-black text-sm rounded-lg focus:ring-white-500 focus:border-white-500 block w-full p-2.5 dark:bg-white-700 dark:border-gray-500 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="First Name" required onChange={e => setValues({ ...values, First_Name: e.target.value })}></input>
+              <input type="text" id="first_name" class="bg-white border h-12 border-gray-300 text-black text-sm rounded-lg focus:ring-white-500 focus:border-white-500 block w-full p-2.5 dark:bg-white-700 dark:border-gray-500 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="First Name" required value={First_Name} onChange={(e) => setFname(e.target.value)}></input>
             </div>
             <div>
               <label for="last_name" class="block mb-2 text-md font-medium text-gray-900 dark:text-black">Enter your last name</label>
-              <input type="text" id="last_name" class="bg-white border h-12 border-gray-300 text-black text-sm rounded-lg focus:ring-white-500 focus:border-white-500 block w-full p-2.5 dark:bg-white-700 dark:border-gray-500 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Last Name" placeolder="Last Name" required onChange={e => setValues({ ...values, Last_Name: e.target.value })}></input>
+              <input type="text" id="last_name" class="bg-white border h-12 border-gray-300 text-black text-sm rounded-lg focus:ring-white-500 focus:border-white-500 block w-full p-2.5 dark:bg-white-700 dark:border-gray-500 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Last Name" placeolder="Last Name" required value={Last_Name} onChange={(e) => setLname(e.target.value)}></input>
             </div>
             <div>
               <label for="address" class="block mb-2 text-md font-medium text-gray-900 dark:text-black">Enter your address</label>
-              <input type="text" id="address" class="bg-white border h-12 border-gray-300 text-black text-sm rounded-lg focus:ring-white-500 focus:border-white-500 block w-full p-2.5 dark:bg-white-700 dark:border-gray-500 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Address" required onChange={e => setValues({ ...values, Address: e.target.value })}></input>
+              <input type="text" id="address" class="bg-white border h-12 border-gray-300 text-black text-sm rounded-lg focus:ring-white-500 focus:border-white-500 block w-full p-2.5 dark:bg-white-700 dark:border-gray-500 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Address" required value={Address} onChange={(e) => setAddress(e.target.value)}></input>
             </div>
 
 
             <div>
               <label for="contact" class="block mb-2 text-md font-medium text-gray-900 dark:text-black">Enter your contact</label>
-              <input type="number" id="contact" class="bg-white border h-12 border-gray-300 text-black text-sm rounded-lg focus:ring-white-500 focus:border-white-500 block w-full p-2.5 dark:bg-white-700 dark:border-gray-500 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Contact" required onChange={e => setValues({ ...values, Contact: e.target.value })}></input>
+              <input type="number" id="contact" class="bg-white border h-12 border-gray-300 text-black text-sm rounded-lg focus:ring-white-500 focus:border-white-500 block w-full p-2.5 dark:bg-white-700 dark:border-gray-500 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Contact" required value={Contact} onChange={(e) => setContact(e.target.value)}></input>
             </div>
           </div>
 
@@ -349,7 +584,7 @@ const Navbar = (props) => {
             <div>
               <label for="small" class="block mb-2 text-md font-medium text-gray-900 dark:text-black">Country Select</label>
               <select id="small" class="bg-white border h-12 border-gray-300 text-black text-sm rounded-lg focus:ring-white-500 focus:border-white-500 block w-full p-2.5 dark:bg-white-700 dark:border-gray-500 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                onChange={e => setValues({ ...values, Country: e.target.value })}>
+                value={Country} onChange={(e) => setCountry(e.target.value)}>
                 <option selected>Choose a select</option>
                 <option value="Bangladesh">Bangladesh</option>
                 <option value="United States">United States</option>
@@ -361,7 +596,7 @@ const Navbar = (props) => {
             <div>
               <label for="small" class="block mb-2 text-md font-medium text-gray-900 dark:text-black">Select Gender</label>
               <select id="small" class="bg-white border h-12 border-gray-300 text-black text-sm rounded-lg focus:ring-white-500 focus:border-white-500 block w-full p-2.5 dark:bg-white-700 dark:border-gray-500 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                onChange={e => setValues({ ...values, Gender: e.target.value })}>
+                value={Gender} onChange={(e) => setGender(e.target.value)}>
                 <option selected>Choose a select</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
@@ -371,28 +606,177 @@ const Navbar = (props) => {
 
           </div>
 
-
-
-
           <div class="mb-6 mt-6">
             <label for="birthday" class="block mb-2 text-md font-medium text-gray-900 dark:text-black">Enter your Birthday</label>
-            <input type="date" id="birthday" class="bg-white border h-12 border-gray-300 text-black text-sm rounded-lg focus:ring-white-500 focus:border-white-500 block w-full p-2.5 dark:bg-white-700 dark:border-gray-500 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Description" required onChange={e => setValues({ ...values, Date: e.target.value })}></input>
+            <input type="date" id="birthday" class="bg-white border h-12 border-gray-300 text-black text-sm rounded-lg focus:ring-white-500 focus:border-white-500 block w-full p-2.5 dark:bg-white-700 dark:border-gray-500 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Description" required value={Date} onChange={(e) => setDate(e.target.value)}></input>
           </div>
+
           <div class="mb-6">
             <label for="description" class="block mb-2 text-md font-medium text-gray-900 dark:text-black">Enter your description</label>
-            <input type="" id="description" class="bg-white border h-12 border-gray-300 text-black text-sm rounded-lg focus:ring-white-500 focus:border-white-500 block w-full p-2.5 dark:bg-white-700 dark:border-gray-500 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Description" required onChange={e => setValues({ ...values, Description: e.target.value })}></input>
+            <input type="" id="description" class="bg-white border h-12 border-gray-300 text-black text-sm rounded-lg focus:ring-white-500 focus:border-white-500 block w-full p-2.5 dark:bg-white-700 dark:border-gray-500 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Description" required value={Description} onChange={(e) => setDescription(e.target.value)}></input>
           </div>
+
+
+          <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" >Upload file</label>
+          <input onChange={handleFile} class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" aria-describedby="file_input_help" id="file_input" type="file"></input>
+          <p class="ml-1 mt-1 text-sm text-gray-500 dark:text-gray-300" id="file_input_help">SVG, PNG, JPG or GIF (MAX. 800x400px).</p>
+
+
+
 
 
           <button type="submit" class="mt-5 text-white bg-green-500 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
 
-          <button type="reset" class="mt-5 ml-4 text-white bg-red-400 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Reset</button>
 
-
-          <button type="primary" class="mt-5 ml-4 text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-600 dark:focus:ring-red-800">Delete</button>
 
         </form>
+
+
+
+
+        <FixedPlugin />
       </Drawer>
+
+
+
+
+
+      {/* used for profile disply */}
+      <Modal width={800} title="Display Profile" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+
+        {/* 
+        <div>
+      <h1>Search User Data by ID</h1>
+      <label>Enter User ID:</label>
+      <input type="text" value={userId} onChange={(e) => setUserId(e.target.value)} />
+      <button onClick={handleSearch}>Search</button>
+      
+      {userData && (
+        <div>
+          <h2>User Details</h2>
+          <p>First Name: {userData.First_Name}</p>
+          <p>Last Name: {userData.Last_Name}</p>
+          <p>Address: {userData.Address}</p>
+          <p>Contact: {userData.Contact}</p>
+          <p>Description: {userData.Description}</p>
+          <p>Date: {userData.Date}</p>
+          <p>Country: {userData.Country}</p>
+          <p>Gender: {userData.Gender}</p>
+          <p>
+            Image:
+            <img
+                  src={`http://localhost:8082/${userData.imagePath}`}
+                  alt="User"
+                  style={{ maxWidth: '100px' }}
+                />
+          </p>
+        </div>
+      )}
+    </div> */}
+
+        <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
+        <div class="relative">
+          <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+            </svg>
+          </div>
+          <input type="search" id="default-search" class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="please type your id..." required
+            value={userId} onChange={(e) => setUserId(e.target.value)}></input>
+          <button onClick={handleSearch} type="submit" class="text-white absolute end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search</button>
+        </div>
+
+
+
+
+
+        {userData && (
+
+          <form className="w-full mt-2 border-2 border-bg-blue p-4 rounded-xl  md:mb-8 sm:mb-10">
+
+            <div class="grid gap-6 mb-6 md:grid-cols-2">
+              <div className="">
+                <label for="first_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your first name</label>
+                <input type="text" id="first_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Napa" required
+                  value={userData.First_Name} disabled></input>
+              </div>
+              <div>
+                <label for="last_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your last name</label>
+                <input type="text" id="last_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Square" required
+                  value={userData.Last_Name} disabled></input>
+              </div>
+              <div class="relative max-w-sm">
+                <label for="company" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your address</label>
+                <input type="text" id="company" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Flowbite" required
+                  value={userData.Address} disabled></input>
+              </div>
+              <div>
+                <label for="phone" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your contact number</label>
+                <input type="number" id="phone" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="1/2/3" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}" required
+                  value={userData.Contact} disabled></input>
+              </div>
+              <div class="relative max-w-sm">
+                <label for="company" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your country</label>
+                <input type="text" id="company" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Flowbite" required
+                  value={userData.Country} disabled></input>
+              </div>
+              <div>
+                <label for="phone" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your gender</label>
+                <input type="text" id="phone" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="1/2/3" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}" required
+                  value={userData.Gender} disabled></input>
+              </div>
+            </div>
+
+
+            <div class="mb-6">
+              <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your description</label>
+              <input type="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="john.doe@company.com" value={userData.Description} disabled></input>
+            </div>  <br></br>
+
+
+            <figure class="relative w-full border border-red-500 py-10 flex justify-center items-center mx-auto  max-w-sm transition-all duration-300 cursor-pointer filter grayscale hover:grayscale-0">
+              
+            
+                <Image
+                  className=" object-cover mx-auto rounded-xl"
+                  width={250}
+                  src={`http://localhost:8082/${userData.imagePath}`}
+                  preview={{
+                    toolbarRender: (
+                      _,
+                      {
+                        transform: { scale },
+                        actions: { onFlipY, onFlipX, onRotateLeft, onRotateRight, onZoomOut, onZoomIn },
+                      },
+                    ) => (
+                      <Space size={12} className="toolbar-wrapper text-3xl  text-blueSecondary">
+                        <DownloadOutlined onClick={onDownload} />
+                        <SwapOutlined rotate={90} onClick={onFlipY} />
+                        <SwapOutlined onClick={onFlipX} />
+                        <RotateLeftOutlined onClick={onRotateLeft} />
+                        <RotateRightOutlined onClick={onRotateRight} />
+                        <ZoomOutOutlined disabled={scale === 1} onClick={onZoomOut} />
+                        <ZoomInOutlined disabled={scale === 50} onClick={onZoomIn} />
+                      </Space>
+                    ),
+                  }}
+                />
+             
+
+            </figure>
+
+
+
+
+
+          </form>
+        )}
+
+
+
+
+
+      </Modal>
 
     </>
   );

@@ -31,11 +31,11 @@ const NftCard = ({ title, author, price, image, bidders, extra }) => {
 
         <div className="mb-3 flex items-center justify-between px-1 md:flex-col md:items-start lg:flex-row lg:justify-between xl:flex-col xl:items-start 3xl:flex-row 3xl:justify-between">
           <div className="mb-2">
-            <p className="text-lg font-bold text-navy-700 dark:text-white">
+            <p className="text-2xl font-bold text-navy-700 dark:text-white">
               {" "}
-              {title}{" "}
+              {title}{" Medicine"}
             </p>
-            <p className="mt-1 text-sm font-medium text-gray-600 md:mt-2">
+            <p className="mt-1 text-md font-medium text-gray-600 md:mt-2">
               By {author}{" "}
             </p>
           </div>
@@ -62,8 +62,9 @@ const NftCard = ({ title, author, price, image, bidders, extra }) => {
         <div className="flex items-center justify-between md:flex-col md:items-start lg:flex-row lg:justify-between xl:flex-col 2xl:items-start 3xl:flex-row 3xl:items-center 3xl:justify-between">
           <div className="flex">
             <p className="mb-2 text-sm font-bold text-brand-500 dark:text-white">
-              Current Bid: {price} <span>ETH</span>
+              Expire Date: {price}
             </p>
+            
           </div>
           <button
             href=""

@@ -6,10 +6,12 @@ import NFTMarketplace from "views/admin/marketplace";
 import Profile from "views/admin/profile";
 import DataTables from "views/admin/tables";
 import RTLDefault from "views/rtl/default";
-import Update_Medicine from "pages/Update_Medicine";
+import Prescribtion from "views/Prescription";
 
 // Auth Imports
 import SignIn from "views/auth/SignIn";
+import Ambulance from "views/admin/ambulance";
+import Maps from "views/admin/Maps";
 
 // Icon Imports
 import {
@@ -32,39 +34,47 @@ const routes = [
   {
     name: "Medicine",
     layout: "/admin",
-    path: "nft-marketplace",
+    path: "medicine",
     icon: <MdOutlineShoppingCart className="h-6 w-6" />,
     component: <NFTMarketplace />,
     secondary: true,
   },
   {
-    name: "Data Tables",
+    name: "Prescription",
     layout: "/admin",
     icon: <MdBarChart className="h-6 w-6" />,
-    path: "data-tables",
-    component: <DataTables />,
+    path: "prescription",
+    component: <Prescribtion />,
   },
   {
-    name: "Profile",
+    name: "Alarm",
     layout: "/admin",
     path: "profile",
     icon: <MdPerson className="h-6 w-6" />,
     component: <Profile />,
   },
+  // {
+  //   name: "Maps",
+  //   layout: "/auth",
+  //   path: "sign-in",
+  //   icon: <MdLock className="h-6 w-6" />,
+  //   component: <SignIn />,
+  // },
   {
-    name: "Sign In",
-    layout: "/auth",
-    path: "sign-in",
+    name: "Maps",
+    layout: "/admin",
+    path: "google-maps",
     icon: <MdLock className="h-6 w-6" />,
-    component: <SignIn />,
+    component: <Maps />,
   },
   {
-    name: "RTL Admin",
-    layout: "/rtl",
-    path: "rtl",
-    icon: <MdHome className="h-6 w-6" />,
-    component: <RTLDefault />,
+    name: "Ambulance",
+    layout: "/admin",
+    path: "ambulance",
+    icon: <MdLock className="h-6 w-6" />,
+    component: <Ambulance />,
   },
+  
   
 ];
 export default routes;
