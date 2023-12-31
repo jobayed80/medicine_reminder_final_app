@@ -14,7 +14,7 @@ import SignUpAuth from "views/Authentication/SignUpAuth";
 
 
 import Admin from "views/AdminDashboard/admin";
-// import Dashboard from 'views/AdminDashboard/'
+// import Dashboard from 'views/AdminDashboard/' joba
 
 const App = () => {
   return (
