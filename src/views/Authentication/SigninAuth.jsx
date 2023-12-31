@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import imageBanner from '../../assets/img/background.png'
 import { Link, useNavigate } from 'react-router-dom'
 
-import {Alert} from 'antd'
+import { Alert } from 'antd'
 
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import {
@@ -12,6 +12,7 @@ import {
 } from 'firebase/auth'
 
 import Swal from 'sweetalert2'
+import { Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
 
 
 const SigninAuth = () => {
@@ -19,6 +20,8 @@ const SigninAuth = () => {
 
     const [email, setEmail] = useState('')
     const [pass, setPass] = useState('')
+    const [emailAdmin, setEmailAdmin] = useState('')
+    const [passAdmin, setPassAdmin] = useState('')
     let [firebaseError, setFirebaseError] = useState("")
 
     //    Sign in Successfully sweet alert2
@@ -35,78 +38,93 @@ const SigninAuth = () => {
     })
 
 
-    let verificationEmail = () =>{
+    let verificationEmail = () => {
         Swal.fire({
-                  imageUrl: 'https://res.cloudinary.com/practicaldev/image/fetch/s--1II67h1R--/c_imagga_scale,f_auto,fl_progressive,h_420,q_auto,w_1000/https://faruknasir.com/images/blog/2021/verification_url.png',
-                  imageWidth: 450,
-                  imageHeight: 220,
-                  imageAlt: 'Custom image',
-                  title: 'Sorry!',
-                  text: 'Please check your email! — check it out!',
-                  showClass: {
-                    popup: 'animate__animated animate__fadeInDown'
-                  },
-                  hideClass: {
-                    popup: 'animate__animated animate__fadeOutUp'
-                  },
-                  showConfirmButton: true,
-    
-                  
-    
-                }).then((result) => {
-                  if (result.isConfirmed) {
-                    
-                        navigate('/admin/authentication/signinAuth')
-                      
-                  }
-                })
-      }
+            imageUrl: 'https://res.cloudinary.com/practicaldev/image/fetch/s--1II67h1R--/c_imagga_scale,f_auto,fl_progressive,h_420,q_auto,w_1000/https://faruknasir.com/images/blog/2021/verification_url.png',
+            imageWidth: 450,
+            imageHeight: 220,
+            imageAlt: 'Custom image',
+            title: 'Sorry!',
+            text: 'Please check your email! — check it out!',
+            showClass: {
+                popup: 'animate__animated animate__fadeInDown'
+            },
+            hideClass: {
+                popup: 'animate__animated animate__fadeOutUp'
+            },
+            showConfirmButton: true,
 
-    let handleSubmitEmailPass = () =>{
-        signInWithEmailAndPassword(auth, email, pass)
-        .then((userCredential) => {
-          // Signed in 
-          const user = userCredential.user;
-          console.log(user)
 
-        //   email verification checked
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                if(user.emailVerified){
-                    navigate('/admin/default')
-                  }
-                  else{
-                    verificationEmail()
-                  }
+
+        }).then((result) => {
+            if (result.isConfirmed) {
+
+                navigate('/admin/authentication/signinAuth')
+
             }
         })
-          
-          // ...
-        })
-        .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-        //   console.log(errorMessage)
-          console.log(errorCode)
-        //   used for erro message
-          Swal.fire({
-            title: "Email/Password incorrect!",
-            showClass: {
-              popup: `
+    }
+
+    let handleSubmitEmailPass = () => {
+        signInWithEmailAndPassword(auth, email, pass)
+            .then((userCredential) => {
+                // Signed in 
+                const user = userCredential.user;
+                console.log(user)
+
+                //   email verification checked
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        if (user.emailVerified) {
+                            navigate('/admin/default')
+                        }
+                        else {
+                            verificationEmail()
+                        }
+                    }
+                })
+
+                // ...
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                //   console.log(errorMessage)
+                console.log(errorCode)
+                //   used for erro message
+                Swal.fire({
+                    title: "Email/Password incorrect!",
+                    showClass: {
+                        popup: `
                 animate__animated
                 animate__fadeInUp
                 animate__faster
               `
-            },
-            hideClass: {
-              popup: `
+                    },
+                    hideClass: {
+                        popup: `
                 animate__animated
                 animate__fadeOutDown
                 animate__faster
               `
-            }
-          });
-        });
+                    }
+                });
+            });
+    }
+
+    let handleSubmitEmailPassAdmin = () => {
+        if (emailAdmin === 'admin2948@gmail.com' && passAdmin === 'admin2948') {
+            // Do something if the credentials are correct (e.g., navigate to a different page)
+            navigate('/Admin/dashboard')
+          } else {
+            // Do something if the credentials are incorrect (e.g., display an error message)
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "email or password is incorrect!",
+                footer: '<a href="#">Why do I have this issue?</a>'
+              });
+          }
     }
 
 
@@ -167,8 +185,8 @@ const SigninAuth = () => {
                             class="w-mx-auto" />
                     </div>
                     <h1 class="mt-5 text-2xl xl:text-3xl font-extrabold text-center">
-                            Sign In
-                        </h1>
+                        Sign In
+                    </h1>
                     <div class="mt-12 flex flex-col items-center">
                         <div class="w-full flex-1 mt-">
                             <div class="flex flex-col items-center">
@@ -239,52 +257,111 @@ const SigninAuth = () => {
                     </div> */}
 
 
-                            <div class="max-w-sm mx-auto">
-                                <div class="mb-5">
-                                    <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your email</label>
-                                    <input type="email" id="email" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-white dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="name@flowbite.com" required
-                                    value={email} onChange={(e) => setEmail(e.target.value)}></input>
-                                </div>
-                                <div class="mb-5">
-                                    <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your password</label>
-                                    <input type="password" id="password" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required
-                                    value={pass} onChange={(e) => setPass(e.target.value)}></input>
-                                </div>
-                                <div class="flex items-start mb-5">
-                                    <div class="flex items-center h-5">
-                                        <input id="remember" type="checkbox" value="" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800" required></input>
-                                    </div>
-                                    <label for="remember" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Remember me</label>
-                                </div>
-                                <button
-                                onClick={handleSubmitEmailPass}
+                            <Tabs isFitted variant='enclosed'  colorScheme='green'>
+                                <TabList className='flex flex-row gap-10 bg-gray-100 justify-center items-center py-3 text-md rounded-2xl'>
+                                    <Tab>User</Tab>
+                                    <Tab>Admin</Tab>
+                                </TabList>
+                                <TabPanels>
+                                    <TabPanel>
+                                        <div class="max-w-sm mx-auto mt-6">
+                                            <div class="mb-5">
+                                                <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your email</label>
+                                                <input type="email" id="email" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-white dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="name@flowbite.com" required
+                                                    value={email} onChange={(e) => setEmail(e.target.value)}></input>
+                                            </div>
+                                            <div class="mb-5">
+                                                <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your password</label>
+                                                <input type="password" id="password" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="**********"  required
+                                                    value={pass} onChange={(e) => setPass(e.target.value)}></input>
+                                            </div>
+                                            <div class="flex items-start mb-5">
+                                                <div class="flex items-center h-5">
+                                                    <input id="remember" type="checkbox" value="" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800" required></input>
+                                                </div>
+                                                <label for="remember" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Remember me</label>
+                                            </div>
+                                            <button
+                                                onClick={handleSubmitEmailPass}
 
-                                    class="mt-5 mb-1 tracking-wide font-semibold bg-green-400 text-white-500 w-full py-4 rounded-lg hover:bg-green-700 transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none">
-                                    <svg class="w-6 h-6 -ml-2" fill="none" stroke="currentColor" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-                                        <circle cx="8.5" cy="7" r="4" />
-                                        <path d="M20 8v6M23 11h-6" />
-                                    </svg>
-                                    <span class="ml-">
-                                        Sign In
-                                    </span>
-                                </button>
+                                                class="mt-5 mb-1 tracking-wide font-semibold bg-green-400 text-white-500 w-full py-4 rounded-lg hover:bg-green-700 transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none">
+                                                <svg class="w-6 h-6 -ml-2" fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                                                    <circle cx="8.5" cy="7" r="4" />
+                                                    <path d="M20 8v6M23 11h-6" />
+                                                </svg>
+                                                <span class="ml-">
+                                                    Sign In
+                                                </span>
+                                            </button>
 
-                                <span className='text-sm text-gray-700'>Don't have an account? <Link to={`/admin/authentication/signupAuth`}>SignUp</Link></span>
-                                <p class="mt-6 text-xs text-gray-600 text-center">
-                                    I agree to abide by Cartesian Kinetics
-                                    <a href="#" class="border-b border-gray-500 border-dotted">
-                                        Terms of Service
-                                    </a>
-                                    and its
-                                    <a href="#" class="border-b border-gray-500 border-dotted">
-                                        Privacy Policy
-                                    </a>
-                                </p>
+                                            <span className='text-sm text-gray-700'>Don't have an account? <Link to={`/admin/authentication/signupAuth`}>SignUp</Link></span>
+                                            <p class="mt-6 text-xs text-gray-600 text-center">
+                                                I agree to abide by Cartesian Kinetics
+                                                <a href="#" class="border-b border-gray-500 border-dotted">
+                                                    Terms of Service
+                                                </a>
+                                                and its
+                                                <a href="#" class="border-b border-gray-500 border-dotted">
+                                                    Privacy Policy
+                                                </a>
+                                            </p>
 
 
-                            </div>
+                                        </div>
+                                    </TabPanel>
+                                    <TabPanel>
+                                        <div class="max-w-sm mx-auto mt-6">
+                                            <div class="mb-5">
+                                                <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your email</label>
+                                                <input type="email" id="email" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-white dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="admin@gmail.com" required
+                                                    value={emailAdmin} onChange={(e) => setEmailAdmin(e.target.value)}></input>
+                                            </div>
+                                            <div class="mb-5">
+                                                <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your password</label>
+                                                <input type="password" id="password" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 " placeholder="**********" required
+                                                    value={passAdmin} onChange={(e) => setPassAdmin(e.target.value)}></input>
+                                            </div>
+                                            <div class="flex items-start mb-5">
+                                                <div class="flex items-center h-5">
+                                                    <input id="remember" type="checkbox" value="" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800" placeholder="**********"  required></input>
+                                                </div>
+                                                <label for="remember" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Remember me</label>
+                                            </div>
+                                            <button
+                                                onClick={handleSubmitEmailPassAdmin}
+
+                                                class="mt-5 mb-1 tracking-wide font-semibold bg-green-400 text-white-500 w-full py-4 rounded-lg hover:bg-green-700 transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none">
+                                                <svg class="w-6 h-6 -ml-2" fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                                                    <circle cx="8.5" cy="7" r="4" />
+                                                    <path d="M20 8v6M23 11h-6" />
+                                                </svg>
+                                                <span class="ml-">
+                                                    Sign In Admin
+                                                </span>
+                                            </button>
+
+                                            <span className='text-sm text-gray-700'>Don't have an account? <Link to={`/admin/authentication/signupAuth`}>SignUp</Link></span>
+                                            <p class="mt-6 text-xs text-gray-600 text-center">
+                                                I agree to abide by Cartesian Kinetics
+                                                <a href="#" class="border-b border-gray-500 border-dotted">
+                                                    Terms of Service
+                                                </a>
+                                                and its
+                                                <a href="#" class="border-b border-gray-500 border-dotted">
+                                                    Privacy Policy
+                                                </a>
+                                            </p>
+
+
+                                        </div>
+                                    </TabPanel>
+                                </TabPanels>
+                            </Tabs>                  
+                           
 
 
                         </div>

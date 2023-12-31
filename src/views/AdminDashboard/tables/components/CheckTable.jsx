@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import CardMenu from "components/card/CardMenu";
-import Checkbox from "components/checkbox";
 import Card from "components/card";
+import Checkbox from "components/checkbox";
 
 import {
   useGlobalFilter,
@@ -37,16 +37,16 @@ const CheckTable = (props) => {
   initialState.pageSize = 11;
 
   return (
-    <Card extra={"w-full h-full sm:overflow-auto px-6"}>
-      <header className="relative flex items-center justify-between pt-4">
+    <Card extra={"w-full sm:overflow-auto p-4"}>
+      <header className="relative flex items-center justify-between">
         <div className="text-xl font-bold text-navy-700 dark:text-white">
-          Maps
+          Check Table
         </div>
 
         <CardMenu />
       </header>
 
-      {/* <div className="mt-8 overflow-x-scroll xl:overflow-x-hidden">
+      <div className="mt-8 overflow-x-scroll xl:overflow-x-hidden">
         <table
           {...getTableProps()}
           className="w-full"
@@ -124,8 +124,7 @@ const CheckTable = (props) => {
             })}
           </tbody>
         </table>
-      </div> */}
-      <iframe className='lg:w-[600px] lg:h-[450px]  sm:w-[600px] sm:h-[600px] rounded-2xl' src="https://www.google.com/maps/embed?pb=!1m16!1m12!1m3!1d466593.1205510897!2d90.33432974358736!3d23.98663820560884!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!2m1!1spharmacy%20near%20Bangladesh!5e0!3m2!1sen!2sbd!4v1703855910044!5m2!1sen!2sbd" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
     </Card>
   );
 };

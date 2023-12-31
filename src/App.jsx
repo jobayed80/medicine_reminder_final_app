@@ -11,17 +11,26 @@ import Update_Prescription from "views/Prescription/Update"
 import SigninAuth from "views/Authentication/SigninAuth";
 import SignUpAuth from "views/Authentication/SignUpAuth";
 
+
+
+import Admin from "views/AdminDashboard/admin";
+// import Dashboard from 'views/AdminDashboard/'
+
 const App = () => {
   return (
     <Routes>
       <Route path="auth/*" element={<AuthLayout />} />
+      <Route path="admin/*" element={<AdminLayout />} />
+      
       <Route path="admin/authentication/signinAuth" element={<SigninAuth />} />
       <Route path="admin/authentication/signupAuth" element={<SignUpAuth />} />
-      <Route path="admin/*" element={<AdminLayout />} />
-      <Route path="admin/medicine/read/:id" element={<Read />} />
-      <Route path="admin/medicine/update/:id" element={<Update />} />
-      <Route path="admin/prescription/read/:id" element={<Read_Prescription />} />
-      <Route path="admin/prescription/update/:id" element={<Update_Prescription />} />
+      <Route path="user/medicine/read/:id" element={<Read />} />
+      <Route path="user/medicine/update/:id" element={<Update />} />
+      <Route path="user/prescription/read/:id" element={<Read_Prescription />} />
+      <Route path="user/prescription/update/:id" element={<Update_Prescription />} />
+
+      <Route path="Admin/dashboard" element={<Admin />} />
+
       <Route path="rtl/*" element={<RtlLayout />} />
       <Route path="/" element={<Navigate to="/admin/authentication/signinAuth" replace />} />
     </Routes>
