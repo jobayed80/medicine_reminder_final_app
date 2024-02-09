@@ -28,7 +28,7 @@ const App = () => {
       <Route path="user/medicine/update/:id" element={<Update />} />
       <Route path="user/prescription/read/:id" element={<Read_Prescription />} />
       <Route path="user/prescription/update/:id" element={<Update_Prescription />} />
-
+      
       <Route path="Admin/dashboard" element={<Admin />} />
       <Route path="rtl/*" element={<RtlLayout />} />
       <Route path="/" element={<Navigate to="/admin/authentication/signinAuth" replace />} />
